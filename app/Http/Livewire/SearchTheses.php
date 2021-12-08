@@ -11,8 +11,8 @@ class SearchTheses extends Component
 {
     use WithPagination;
 
-    public $search = "caca";
-    protected $queryString = ['search'];
+    public $search = "";
+    //protected $queryString = ['search'];
 
     public function render()
     {

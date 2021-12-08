@@ -4,13 +4,41 @@
     <div class="w-3/4 mx-auto">
         {{ $theses->links() }}
     </div>
-    <div class="flex flex-wrap">
-        @foreach($theses as $these)
-            <div class="w-full">
-                <h2>{{ $these->titre }}</h2>
-                <h3>{{ $these->auteur }}</h3>
 
-            </div>
+    <table class="table-fixed m-4">
+        <thead>
+        <tr>
+            <th class="w-1/3">
+                Titre
+            </th>
+            <th class="w-1/3">
+                Auteur
+            </th>
+            <th class="w-1/3">
+                Discipline
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach($theses as $these)
+            <tr>
+                <td class="px-4 py-2">
+                    <div class="text-justify">
+                        {{ $these->titre }}
+                    </div>
+                </td>
+                <td class="px-4 py-2">
+                    <div class="px-auto">
+                        {{ $these->auteur }}
+                    </div>
+                </td>
+                <td class="px-4 py-2">
+                    <div class="p-auto">
+                        {{ $these->discipline }}
+                    </div>
+                </td>
+            </tr>
         @endforeach
-    </div>
+        </tbody>
+    </table>
 </div>
