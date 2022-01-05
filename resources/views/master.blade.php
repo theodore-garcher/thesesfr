@@ -37,6 +37,9 @@
                     <li class="mr-8 border-b-2 border-transparent hover:text-gray-800 hover:border-blue-500">
                         <a href="{{ URL::route('carte') }}">Carte</a>
                     </li>
+                    <li class="mr-8 border-b-2 border-transparent hover:text-gray-800 hover:border-blue-500">
+                        <a href="{{ URL::route('index.import') }}">Import</a>
+                    </li>
                 </ul>
             </div>
         </div>
