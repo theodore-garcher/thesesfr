@@ -1,76 +1,98 @@
 <div>
-    <div id="container1" style="height:400px;" class="w-11/12 mx-auto"></div>
-    <div class="flex justify-around mt-8">
-        <div id="container2" style="height:400px;" class=""></div>
-        <div id="container3" style="height:400px;" class=""></div>
+    <div class="flex flex-auto justify-center mb-4 mt-2">
+        <input wire:model.lazy="search" type="search" placeholder="Rechercher par mots clés..." class="shadow appearance-none border rounded w-1/2 py-2 px-2 text-gray-700 focus:outline-none focus:shadow-outline">
+        <button wire:click="updateData" class="ml-4 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
+            Go!
+        </button>
     </div>
+    <div class="h-8">
+        <p wire:loading class="text-center w-full">
+            Chargement des données...
+        </p>
+    </div>
+    <div wire:ignore id="container1" style="height:400px;" class="w-11/12 mx-auto"></div>
+    <div class="flex justify-around my-8">
+        <div wire:ignore id="container2" style="height:400px;" class=""></div>
+        <div wire:ignore id="container3" style="height:400px;" class=""></div>
+    </div>
+    <h2 class="text-xl text-center mb-4">
+        Cartographie des établissements de soutenance
+    </h2>
+    <div wire:ignore id="map" style="height:650px;" class="mx-8 z-0 mb-8"></div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const chart1 = Highcharts.getJSON(
-                'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/usdeur.json',
-                function (data) {
+        var map = L.map('map').setView([46.89132478194589, 2.4446100833731736], 6);
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+        let marker;
+        let layerGroup = L.layerGroup().addTo(map);
 
-                    Highcharts.chart('container1', {
-                        chart: {
-                            zoomType: 'x'
-                        },
-                        title: {
-                            text: 'Quantité de thèses par année'
-                        },
-                        subtitle: {
-                            text: document.ontouchstart === undefined ?
-                                'Sélectionner une zone pour zoomer' : 'Pincer une zone pour zoomer'
-                        },
-                        xAxis: {
-                            type: 'datetime'
-                        },
-                        yAxis: {
-                            title: {
-                                text: 'Nombre de thèses'
-                            }
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        plotOptions: {
-                            area: {
-                                fillColor: {
-                                    linearGradient: {
-                                        x1: 0,
-                                        y1: 0,
-                                        x2: 0,
-                                        y2: 1
-                                    },
-                                    stops: [
-                                        [0, Highcharts.getOptions().colors[0]],
-                                        [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                                    ]
-                                },
-                                marker: {
-                                    radius: 2
-                                },
-                                lineWidth: 1,
-                                states: {
-                                    hover: {
-                                        lineWidth: 1
-                                    }
-                                },
-                                threshold: null
-                            }
-                        },
-
-                        series: [{
-                            type: 'area',
-                            name: 'thèses par année',
-                            data: data
-                        }]
-                    });
-                }
+        window.addEventListener('dataUpdated', event => {
+            let js_annees = event.detail.years;
+            let hcData1 = [];
+            js_annees.forEach(
+                item => hcData1.push([item.year, parseInt(item.count)]),
             );
+            const chart1 = Highcharts.chart('container1', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Nombre de thèses par année'
+                },
+                credits: {
+                    enabled: false
+                },
+                xAxis: {
+                    type: 'category',
+                    labels: {
+                        rotation: -45,
+                        style: {
+                            fontSize: '13px',
+                            fontFamily: 'Roboto, sans-serif'
+                        }
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Nombre de thèses'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                tooltip: {
+                    pointFormat: 'Nombre de thèses: <b>{point.y}</b>'
+                },
+                exporting: {
+                    enabled: false
+                },
+                series: [{
+                    name: 'Population',
+                    data: hcData1,
+                    dataLabels: {
+                        enabled: true,
+                        rotation: -90,
+                        color: '#FFFFFF',
+                        align: 'right',
+                        format: '{point.y}', // one decimal
+                        y: 10, // 10 pixels down from the top
+                        style: {
+                            fontSize: '11px',
+                            fontFamily: 'Roboto, sans-serif'
+                        }
+                    }
+                }]
+            });
 
+            let js_discs = event.detail.discs;
+            let hcData2 = [];
+            js_discs.forEach(
+                item => hcData2.push({
+                    name: item.discipline,
+                    y: parseInt(item.count)
+                }),
+            );
             const chart2 = Highcharts.chart('container2', {
                 chart: {
                     plotBackgroundColor: null,
@@ -79,7 +101,10 @@
                     type: 'pie'
                 },
                 title: {
-                    text: 'Répartition des principales disciplines'
+                    text: 'Top 10 disciplines'
+                },
+                exporting: {
+                    enabled: false
                 },
                 tooltip: {
                     pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -103,41 +128,20 @@
                     }
                 },
                 series: [{
-                    name: 'Brands',
+                    name: 'Disciplines',
                     colorByPoint: true,
-                    data: [{
-                        name: 'Chrome',
-                        y: 61.41,
-                        sliced: true,
-                        selected: true
-                    }, {
-                        name: 'Internet Explorer',
-                        y: 11.84
-                    }, {
-                        name: 'Firefox',
-                        y: 10.85
-                    }, {
-                        name: 'Edge',
-                        y: 4.67
-                    }, {
-                        name: 'Safari',
-                        y: 4.18
-                    }, {
-                        name: 'Sogou Explorer',
-                        y: 1.64
-                    }, {
-                        name: 'Opera',
-                        y: 1.6
-                    }, {
-                        name: 'QQ',
-                        y: 1.2
-                    }, {
-                        name: 'Other',
-                        y: 2.61
-                    }]
+                    data: hcData2
                 }]
             });
 
+            let js_etabs = event.detail.etabs;
+            let hcData3 = [];
+            js_etabs.forEach(
+                item => hcData3.push({
+                    name: item.etablissement_soutenance,
+                    y: parseInt(item.count)
+                }),
+            );
             const chart3 = Highcharts.chart('container3', {
                 chart: {
                     plotBackgroundColor: null,
@@ -169,41 +173,25 @@
                         }
                     }
                 },
+                exporting: {
+                    enabled: false
+                },
                 series: [{
-                    name: 'Brands',
+                    name: 'Disciplines',
                     colorByPoint: true,
-                    data: [{
-                        name: 'Chrome',
-                        y: 61.41,
-                        sliced: true,
-                        selected: true
-                    }, {
-                        name: 'Internet Explorer',
-                        y: 11.84
-                    }, {
-                        name: 'Firefox',
-                        y: 10.85
-                    }, {
-                        name: 'Edge',
-                        y: 4.67
-                    }, {
-                        name: 'Safari',
-                        y: 4.18
-                    }, {
-                        name: 'Sogou Explorer',
-                        y: 1.64
-                    }, {
-                        name: 'Opera',
-                        y: 1.6
-                    }, {
-                        name: 'QQ',
-                        y: 1.2
-                    }, {
-                        name: 'Other',
-                        y: 2.61
-                    }]
+                    data: hcData3
                 }]
             });
+
+            let js_coords = event.detail.coords;
+            layerGroup.clearLayers();
+            js_coords.forEach(
+                item => L.marker([item.longitude, item.latitude]).bindPopup("<h3>"+ item.etablissement_soutenance +"</h3>").addTo(layerGroup)
+            );
+        });
+
+        window.addEventListener('DOMContentLoaded', event => {
+            Livewire.emit('updateData');
         });
     </script>
 </div>

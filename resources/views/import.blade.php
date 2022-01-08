@@ -6,6 +6,7 @@
 @section('content')
 
     <h1>Import</h1>
+
     <form class="" action="{{ route('file-import') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="mt-30" style="max-width: 500px; margin: 0 auto;">

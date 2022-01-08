@@ -9,7 +9,7 @@ class These extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'id_these';
+    protected $primaryKey = 'id_etablissement';
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = ['id_these', 'auteur', 'titre', 'id_auteur', 'directeur', 'directeur_np', 'id_directeur', 'etablissement_soutenance', 'id_etablissement', 'discipline', 'statut', 'date_premiere_inscription', 'date_soutenance', 'langue', 'accessible_online', 'publi_thesesfr', 'maj_thesesfr'];

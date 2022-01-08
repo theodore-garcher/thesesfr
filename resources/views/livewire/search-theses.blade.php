@@ -65,7 +65,11 @@
 
                             <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                                 <div class="text-sm leading-5 text-gray-900">
-                                    <a class="border-b-2 border-transparent text-blue-500 border-blue-500 break-all" target="_blank" href="https://www.theses.fr/{{ $these->id_these }}">{{ $these->id_these }}</a>
+                                    @if($these->accessible_online == "oui")
+                                        <a class="border-b-2 border-transparent text-blue-500 border-blue-500 break-all" target="_blank" href="https://www.theses.fr/{{ $these->id_these }}">{{ $these->id_these }}</a>
+                                    @else
+                                        <div class="text-sm leading-5 text-gray-900 break-words">{{ $these->id_these }}</div>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
